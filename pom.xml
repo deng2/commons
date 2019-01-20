@@ -22,6 +22,7 @@
         <module>regex</module>
         <module>sftp</module>
         <module>hibernate</module>
+        <module>js</module>
     </modules>
     <dependencyManagement>
         <dependencies>
