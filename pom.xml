@@ -16,19 +16,12 @@
     </properties>
     <modules>
         <module>basic</module>
-        <module>db</module>
         <module>ftp</module>
-        <module>jackson</module>
         <module>jms</module>
-        <module>js</module>
         <module>perf</module>
         <module>regex</module>
-        <module>rest</module>
         <module>sftp</module>
         <module>hibernate</module>
-        <module>excel</module>
-        <module>guava</module>
-        <module>kafka</module>
     </modules>
     <dependencyManagement>
         <dependencies>
