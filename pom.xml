@@ -23,6 +23,7 @@
         <module>sftp</module>
         <module>hibernate</module>
         <module>js</module>
+        <module>jackson</module>
     </modules>
     <dependencyManagement>
         <dependencies>
