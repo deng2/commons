@@ -24,6 +24,7 @@
         <module>hibernate</module>
         <module>js</module>
         <module>jackson</module>
+        <module>db</module>
     </modules>
     <dependencyManagement>
         <dependencies>
