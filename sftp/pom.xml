@@ -8,13 +8,8 @@
         <version>1.0</version>
     </parent>
     <artifactId>commons-sftp</artifactId>
-    <name>commons-sftp</name>
+
     <dependencies>
-        <dependency>
-            <groupId>com.greenbee.commons</groupId>
-            <artifactId>commons-basic</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>

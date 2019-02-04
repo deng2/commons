@@ -8,16 +8,16 @@
         <version>1.0</version>
     </parent>
     <artifactId>commons-jms</artifactId>
-    <name>commons-jms</name>
+
     <dependencies>
+        <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.greenbee.commons</groupId>
             <artifactId>commons-basic</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.jms</groupId>
-            <artifactId>jms</artifactId>
         </dependency>
     </dependencies>
 </project>

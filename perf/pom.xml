@@ -8,7 +8,7 @@
         <version>1.0</version>
     </parent>
     <artifactId>commons-perf</artifactId>
-    <name>commons-perf</name>
+
     <dependencies>
         <dependency>
             <groupId>com.greenbee.commons</groupId>

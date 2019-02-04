@@ -11,11 +11,6 @@
     <artifactId>commons-hibernate</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.greenbee.commons</groupId>
-            <artifactId>commons-basic</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <exclusions>

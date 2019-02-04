@@ -10,11 +10,6 @@
     <artifactId>commons-jackson</artifactId>
     <dependencies>
         <dependency>
-            <groupId>com.greenbee.commons</groupId>
-            <artifactId>commons-basic</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
         </dependency>

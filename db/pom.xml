@@ -8,7 +8,7 @@
         <version>1.0</version>
     </parent>
     <artifactId>commons-db</artifactId>
-    <name>commons-db</name>
+
     <dependencies>
         <dependency>
             <groupId>com.greenbee.commons</groupId>
