@@ -48,7 +48,7 @@ public class ReflectionLib {
         try {
             return cst.newInstance(params);
         } catch (Exception e) {
-            throw wrap(e, cst.getExceptionTypes());
+            throw wrapAndThrow(e, cst.getExceptionTypes());
         }
     }
 
@@ -69,7 +69,7 @@ public class ReflectionLib {
                 throw new Exception("Static method");
             return method.invoke(instance, params);
         } catch (Exception e) {
-            throw wrap(e, method.getExceptionTypes());
+            throw wrapAndThrow(e, method.getExceptionTypes());
         }
     }
 
@@ -91,7 +91,7 @@ public class ReflectionLib {
                 throw new Exception("Not static method");
             return method.invoke(null, params);
         } catch (Exception e) {
-            throw wrap(e, method.getExceptionTypes());
+            throw wrapAndThrow(e, method.getExceptionTypes());
         }
     }
 
@@ -185,7 +185,7 @@ public class ReflectionLib {
         } catch (NoSuchMethodException nme) {
             Class<?> pmvClazz = getPrimitiveClass(argClazz);
             if (pmvClazz != null) {
-                method = beanClazz.getMethod(methodName, new Class<?>[] { pmvClazz });
+                method = beanClazz.getMethod(methodName, pmvClazz);
             } else {
                 throw nme;
             }
@@ -193,7 +193,7 @@ public class ReflectionLib {
         try {
             method.invoke(bean, value);
         } catch (Exception e) {
-            throw wrap(e, method.getExceptionTypes());
+            throw wrapAndThrow(e, method.getExceptionTypes());
         }
     }
 
@@ -221,27 +221,35 @@ public class ReflectionLib {
         return pmvClazz;
     }
 
-    //get real exception and wrap exception into runtime exception if it is not declared
-    protected static Exception wrap(Exception ex, Class<?>[] exceptions) {
+    //get real exception and wrapAndThrow exception into runtime exception if it is not declared
+    protected static Exception wrapAndThrow(Exception ex, Class<?>[] exceptions) throws Exception {
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {//get target exception
             cause = ((InvocationTargetException) ex).getTargetException();
         }
-        for (Class<?> exception : exceptions) {
-            if (exception.isAssignableFrom(cause.getClass()))
-                return ex;
+        //throw unchecked exception
+        if (cause instanceof Error)
+            throw (Error) cause;
+        if (cause instanceof RuntimeException)
+            throw (RuntimeException) cause;
+        //throw declared exception
+        if (cause instanceof Exception) {
+            for (Class<?> exception : exceptions) {
+                if (exception.isAssignableFrom(cause.getClass()))
+                    throw (Exception) cause;
+            }
         }
-        if (ex instanceof RuntimeException)
-            return ex;
-        return new RuntimeException(ex);
+        throw new RuntimeException(cause);
     }
 
     public static void main(String[] args) throws Exception {
-        CommandLineLogger.log(get(new Test(), "b"));
-        CommandLineLogger.log(getDeclared(new Test(), "c"));
-        CommandLineLogger.log(getStatic(Test.class, "a"));
+        System.out.println(get(new Test(), "b"));
+        System.out.println(getDeclared(new Test(), "c"));
+        System.out.println(getStatic(Test.class, "a"));
+        ReflectionLib.invokeStatic(ReflectionLib.class.getClassLoader(), "com.greenbee.commons.ReflectionLib$Test", "testException");
     }
 
+    @SuppressWarnings("FieldCanBeLocal")
     public static class Test {
         public static String a = "a";
         public String b = "b";
@@ -249,6 +257,10 @@ public class ReflectionLib {
 
         public String getC() {
             return c;
+        }
+
+        public static void testException() throws Exception {
+            throw new Exception("testException");
         }
     }
 }
