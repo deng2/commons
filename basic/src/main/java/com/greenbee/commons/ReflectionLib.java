@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ReflectionLib {
-
     public static Class<?> loadClass(ClassLoader cl, String name) throws ClassNotFoundException {
         ClassLoader ccl = Thread.currentThread().getContextClassLoader();
         if (ccl == cl)
@@ -32,8 +31,7 @@ public class ReflectionLib {
         return createInstance(cl, clazzName, new Class<?>[0], new Object[0]);
     }
 
-    public static Object createInstance(ClassLoader cl, String clazzName, Class<?>[] types,
-            Object[] params) throws Exception {
+    public static Object createInstance(ClassLoader cl, String clazzName, Class<?>[] types, Object[] params) throws Exception {
         Class<?> clazz = loadClass(cl, clazzName);
         return createInstance(clazz, types, params);
     }
@@ -42,13 +40,12 @@ public class ReflectionLib {
         return createInstance(clazz, new Class<?>[0], new Object[0]);
     }
 
-    public static Object createInstance(Class<?> clazz, Class<?>[] types, Object[] params)
-            throws Exception {
+    public static Object createInstance(Class<?> clazz, Class<?>[] types, Object[] params) throws Exception {
         Constructor<?> cst = clazz.getConstructor(types);
         try {
             return cst.newInstance(params);
         } catch (Exception e) {
-            throw wrapAndThrow(e, cst.getExceptionTypes());
+            throw wrapException(e, cst.getExceptionTypes());
         }
     }
 
@@ -56,8 +53,7 @@ public class ReflectionLib {
         return invoke(instance, methodName, new Class<?>[0], new Object[0]);
     }
 
-    public static Object invoke(Object instance, String methodName, Class<?>[] types,
-            Object[] params) throws Exception {
+    public static Object invoke(Object instance, String methodName, Class<?>[] types, Object[] params) throws Exception {
         Class<?> clazz = instance.getClass();
         Method method = clazz.getMethod(methodName, types);
         return invoke(instance, method, params);
@@ -65,21 +61,19 @@ public class ReflectionLib {
 
     public static Object invoke(Object instance, Method method, Object... params) throws Exception {
         try {
-            if (!verifyModifier(method.getModifiers(), ~Modifier.STATIC))
+            if (verifyModifier(method.getModifiers(), ~Modifier.STATIC))
                 throw new Exception("Static method");
             return method.invoke(instance, params);
         } catch (Exception e) {
-            throw wrapAndThrow(e, method.getExceptionTypes());
+            throw wrapException(e, method.getExceptionTypes());
         }
     }
 
-    public static Object invokeStatic(ClassLoader cl, String className, String methodName)
-            throws Exception {
+    public static Object invokeStatic(ClassLoader cl, String className, String methodName) throws Exception {
         return invokeStatic(cl, className, methodName, new Class<?>[0], new Object[0]);
     }
 
-    public static Object invokeStatic(ClassLoader cl, String className, String methodName,
-            Class<?>[] types, Object[] params) throws Exception {
+    public static Object invokeStatic(ClassLoader cl, String className, String methodName, Class<?>[] types, Object[] params) throws Exception {
         Class<?> clazz = loadClass(cl, className);
         Method method = clazz.getMethod(methodName, types);
         return invokeStatic(method, params);
@@ -87,18 +81,18 @@ public class ReflectionLib {
 
     public static Object invokeStatic(Method method, Object... params) throws Exception {
         try {
-            if (!verifyModifier(method.getModifiers(), Modifier.STATIC))
+            if (verifyModifier(method.getModifiers(), Modifier.STATIC))
                 throw new Exception("Not static method");
             return method.invoke(null, params);
         } catch (Exception e) {
-            throw wrapAndThrow(e, method.getExceptionTypes());
+            throw wrapException(e, method.getExceptionTypes());
         }
     }
 
     public static Object get(Object instance, String fieldName) throws Exception {
         Class<?> clazz = instance.getClass();
         Field field = clazz.getField(fieldName);
-        if (!verifyModifier(field.getModifiers(), ~Modifier.STATIC))
+        if (verifyModifier(field.getModifiers(), ~Modifier.STATIC))
             throw new Exception("Static method");
         return field.get(instance);
     }
@@ -106,22 +100,20 @@ public class ReflectionLib {
     public static Object getDeclared(Object instance, String fieldName) throws Exception {
         Class<?> clazz = instance.getClass();
         Field field = clazz.getDeclaredField(fieldName);
-        if (!verifyModifier(field.getModifiers(), ~Modifier.STATIC))
+        if (verifyModifier(field.getModifiers(), ~Modifier.STATIC))
             throw new Exception("Static method");
         field.setAccessible(true);
         return field.get(instance);
     }
 
-    public static Object getStatic(ClassLoader cl, String className, String fieldName)
-            throws Exception {
+    public static Object getStatic(ClassLoader cl, String className, String fieldName) throws Exception {
         Class<?> clazz = loadClass(cl, className);
         return getStatic(clazz, fieldName);
     }
 
-    public static Object getStatic(Class<?> clazz, String fieldName)
-            throws NoSuchFieldException, Exception, IllegalAccessException {
+    public static Object getStatic(Class<?> clazz, String fieldName) throws NoSuchFieldException, Exception, IllegalAccessException {
         Field field = clazz.getField(fieldName);
-        if (!verifyModifier(field.getModifiers(), Modifier.STATIC))
+        if (verifyModifier(field.getModifiers(), Modifier.STATIC))
             throw new Exception("Not static method");
         return field.get(null);
     }
@@ -129,13 +121,12 @@ public class ReflectionLib {
     public static boolean verifyModifier(int input, int... conditions) {
         for (int condition : conditions) {
             if ((input & condition) == 0)
-                return false;
+                return true;
         }
-        return true;
+        return false;
     }
 
-    public static List<Method> getAnnotatedMethod(Class<?> clazz,
-            Class<? extends Annotation> annoClazz) {
+    public static List<Method> getAnnotatedMethod(Class<?> clazz, Class<? extends Annotation> annoClazz) {
         return getAnnotatedMethod(clazz, annoClazz, ~Modifier.STATIC, Modifier.PUBLIC);
     }
 
@@ -144,12 +135,11 @@ public class ReflectionLib {
      * 1. annotation defined on the method
      * 2. annotation defined on the override method of parent class
      */
-    public static List<Method> getAnnotatedMethod(Class<?> clazz,
-            Class<? extends Annotation> annoClazz, int... conditions) {
+    public static List<Method> getAnnotatedMethod(Class<?> clazz, Class<? extends Annotation> annoClazz, int... conditions) {
         List<Method> rtn = new ArrayList<>();
         Method[] methods = clazz.getMethods();
         for (Method method : methods) {
-            if (!verifyModifier(method.getModifiers(), conditions))
+            if (verifyModifier(method.getModifiers(), conditions))
                 continue;
             if (getAnnotation(method, annoClazz) == null)
                 continue;
@@ -193,7 +183,7 @@ public class ReflectionLib {
         try {
             method.invoke(bean, value);
         } catch (Exception e) {
-            throw wrapAndThrow(e, method.getExceptionTypes());
+            throw wrapException(e, method.getExceptionTypes());
         }
     }
 
@@ -221,46 +211,25 @@ public class ReflectionLib {
         return pmvClazz;
     }
 
-    //get real exception and wrapAndThrow exception into runtime exception if it is not declared
-    protected static Exception wrapAndThrow(Exception ex, Class<?>[] exceptions) throws Exception {
+    //get real exception and wrapException exception into runtime exception if it is not declared
+    protected static Exception wrapException(Exception ex, Class<?>[] exceptions) {
         Throwable cause = ex;
         if (ex instanceof InvocationTargetException) {//get target exception
             cause = ((InvocationTargetException) ex).getTargetException();
         }
-        //throw unchecked exception
+        //cannot wrap error and throw it out
         if (cause instanceof Error)
             throw (Error) cause;
+        //don't wrap checked exception
         if (cause instanceof RuntimeException)
-            throw (RuntimeException) cause;
-        //throw declared exception
+            return (RuntimeException) cause;
+        //don't wrap declared exception but exclude throwable
         if (cause instanceof Exception) {
             for (Class<?> exception : exceptions) {
                 if (exception.isAssignableFrom(cause.getClass()))
-                    throw (Exception) cause;
+                    return (Exception) cause;
             }
         }
-        throw new RuntimeException(cause);
-    }
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(get(new Test(), "b"));
-        System.out.println(getDeclared(new Test(), "c"));
-        System.out.println(getStatic(Test.class, "a"));
-        ReflectionLib.invokeStatic(ReflectionLib.class.getClassLoader(), "com.greenbee.commons.ReflectionLib$Test", "testException");
-    }
-
-    @SuppressWarnings("FieldCanBeLocal")
-    public static class Test {
-        public static String a = "a";
-        public String b = "b";
-        private String c = "c";
-
-        public String getC() {
-            return c;
-        }
-
-        public static void testException() throws Exception {
-            throw new Exception("testException");
-        }
+        return new RuntimeException(cause);
     }
 }
