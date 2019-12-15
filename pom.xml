@@ -17,10 +17,16 @@
 
     <distributionManagement>
         <repository>
-            <id>github</id>
+            <id>github_deng2_commons</id>
             <url>https://maven.pkg.github.com/deng2/commons</url>
         </repository>
     </distributionManagement>
+    <repositories>
+        <repository>
+            <id>github_deng2_commons</id>
+            <url>https://maven.pkg.github.com/deng2/commons</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
